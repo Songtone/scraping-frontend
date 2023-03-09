@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Space, Layout, Button} from 'antd';
 import {Content, Header} from "antd/es/layout/layout";
 import RowComponent from "./component/rowComponent";
-import { fetchMtgCards, saveMtgCard } from "./api/mtg";
+import {deleteMtgCard, fetchMtgCards, saveMtgCard} from "./api/mtg";
 import Search from "antd/es/input/Search";
 
 const App = () => {
@@ -47,13 +47,21 @@ const App = () => {
         })
     };
 
-    const checkCardList = () =>{
+    const checkCardList = () => {
         fetchMtgCards().then(res => {
             setMtgCardList(createGridList(res));
         }).catch((err) => {
             console.log(err.message);
         })
     }
+
+    const onDelete = (value) => {
+        deleteMtgCard(value).then(() => {
+            checkCardList();
+        }).catch((err) => {
+            console.log(err.message);
+        })
+    };
 
     return (
         <div className="App" style={{padding: '1rem 5rem', backgroundColor: '#d0d0e1'}}>
@@ -78,7 +86,10 @@ const App = () => {
 
                         {mtgCardList.map((cardRows) => (
                             <RowComponent
-                                cardList={cardRows}/>
+                                key={cardRows[0]._id}
+                                cardList={cardRows}
+                                onDelete={onDelete}
+                            />
                         ))}
                     </Content>
                 </Layout>
