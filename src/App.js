@@ -1,76 +1,32 @@
 import React, {useEffect, useState} from "react";
-import {Space, Layout} from 'antd';
+import {Space, Layout, Button} from 'antd';
 import {Content, Header} from "antd/es/layout/layout";
 import RowComponent from "./component/rowComponent";
-import {fetchMtgCardData, fetchMtgCards, saveMtgCard} from "./api/mtg";
+import { fetchMtgCards, saveMtgCard } from "./api/mtg";
 import Search from "antd/es/input/Search";
 
 const App = () => {
-    const testing = [1, 2, 3, 4, 5];
-    const [mtgCardManaCrypt, setMtgCardManaCrypt] = useState([]);
-    const [mtgCardKoth, setMtgCardKoth] = useState([]);
-    const [mtgCardSolRing, setMtgCardSolRing] = useState([]);
-    const [mtgCardVeneratedRotpriest, setMtgCardVeneratedRotpriest] = useState([]);
-    const [mtgCardVolcanicIsland, setMtgCardVolcanicIsland] = useState([]);
-    const [mtgCardCityscapeLeveler, setMtgCardCityscapeLeveler] = useState([]);
+    const [inputValue, setInputValue] = useState('')
+    const [mtgCardList, setMtgCardList] = useState([]);
 
     useEffect(() => {
-        fetchMtgCardData('mana-crypt').then(res => {
-            setMtgCardManaCrypt(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCardData('koth-fire-of-resistance').then(res => {
-            setMtgCardKoth(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCardData('sol-ring').then(res => {
-            setMtgCardSolRing(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCardData('venerated-rotpriest').then(res => {
-            setMtgCardVeneratedRotpriest(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCardData('volcanic-island').then(res => {
-            setMtgCardVolcanicIsland(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCardData('cityscape-leveler').then(res => {
-            setMtgCardCityscapeLeveler(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        fetchMtgCards().then(res => {
-            console.log('DB cards')
-            console.log(res);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        console.log('000');
-        saveMtgCard('https://www.mtggoldfish.com/price/Alliances/Force+of+Will#paper').then(() => {
-            createGridList(testing)
-        }).catch((err) => {
-            console.log(err.message);
-        })
-        createGridList(testing)
+        checkCardList();
     }, []);
 
     function createGridList(list) {
         let grouping = [];
         let subGroup = [];
         list.map((test, index) => {
-            if (index % 3 === 0) {
+            if (index % 4 === 0) {
                 if (subGroup.length > 0) {
                     grouping.push(subGroup);
                 }
                 subGroup = [];
                 subGroup.push(test);
-            } else if (index % 3 !== 0) {
+                if (index === list.length - 1) {
+                    grouping.push(subGroup);
+                }
+            } else if (index % 4 !== 0) {
                 subGroup.push(test);
                 if (index === list.length - 1) {
                     grouping.push(subGroup);
@@ -79,30 +35,51 @@ const App = () => {
                 console.log('nothing')
             }
         })
+        return grouping;
     }
 
     const onSearch = (value) => {
-        console.log(value)
+        saveMtgCard(value).then(() => {
+            checkCardList();
+            setInputValue('');
+        }).catch((err) => {
+            console.log(err.message);
+        })
     };
+
+    const checkCardList = () =>{
+        fetchMtgCards().then(res => {
+            setMtgCardList(createGridList(res));
+        }).catch((err) => {
+            console.log(err.message);
+        })
+    }
 
     return (
         <div className="App" style={{padding: '1rem 5rem', backgroundColor: '#d0d0e1'}}>
             <Space direction="vertical" style={{width: '100%'}} size={[0, 30]}>
                 <Layout style={{backgroundColor: '#d0d0e1'}}>
                     <Header style={{backgroundColor: 'transparent', textAlign: 'center'}}>
-                        <h1>Sebastien's Magic The Gathering Wish List</h1>
+                        <h1>Magic The Gathering Wish List</h1>
+                        <Search
+                            style={{
+                                width: '50%',
+                                marginLeft: '50%',
+                                transform: 'translate(-50%)'
+                            }}
+                            placeholder="Input link of card"
+                            onSearch={onSearch}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            enterButton/>
                     </Header>
                     <Content style={{marginTop: '2rem'}}>
-                        <Search style={{ width: '35%', marginLeft: '50%',
-                            transform: 'translate(-50%)'}} placeholder="Input link of card" onSearch={onSearch} enterButton />
-                        <RowComponent
-                            firstCard={mtgCardManaCrypt}
-                            secondCard={mtgCardKoth}
-                            thirdCard={mtgCardSolRing}/>
-                        <RowComponent
-                            firstCard={mtgCardVeneratedRotpriest}
-                            secondCard={mtgCardVolcanicIsland}
-                            thirdCard={mtgCardCityscapeLeveler}/>
+                        <Button onClick={checkCardList}>Refresh Card List</Button>
+
+                        {mtgCardList.map((cardRows) => (
+                            <RowComponent
+                                cardList={cardRows}/>
+                        ))}
                     </Content>
                 </Layout>
             </Space>

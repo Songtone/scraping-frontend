@@ -1,11 +1,11 @@
 import React from 'react';
 import {Card} from 'antd';
 
-const MTGCardComponent = ({mtgCardName, mtgCardPrice, mtgCardPicturePath}) => {
+const MTGCardComponent = ({card}) => {
     const {Meta} = Card;
     return (
         <Card
-            style={{width: '50%',
+            style={{width: '75%',
                 borderRadius: '2rem',
                 padding: '3rem 3rem 0rem 3rem',
                 marginLeft: '50%',
@@ -15,10 +15,11 @@ const MTGCardComponent = ({mtgCardName, mtgCardPrice, mtgCardPicturePath}) => {
                 style={{width: '15rem',
                     marginLeft: '50%',
                     transform: 'translate(-50%)'}}
-                src={mtgCardPicturePath}
+                alt={card._id}
+                src={card.mtgCardPicturePath}
             />}>
-            <Meta title={mtgCardName}/>
-            <h1>{mtgCardPrice + " USD"}</h1>
+            <Meta title={card.mtgCardName}/>
+            <h1>{card.mtgCardPrice + " USD"}</h1>
         </Card>
     )
 }
