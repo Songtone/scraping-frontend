@@ -8,8 +8,6 @@ export const fetchMtgCards = async () => {
 }
 
 export const saveMtgCard = async (url) => {
-    console.log(url);
-    console.log('123');
     await axios.post(API_URL + '/mtg/save', {
         url: url,
     })
